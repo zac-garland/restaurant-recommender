@@ -5,3 +5,6 @@ NAMESPACE
 DESCRIPTION
 .Rbuildignore
 raw-res
+.Rhistory
+raw-data
+data
