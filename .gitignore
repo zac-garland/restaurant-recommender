@@ -4,3 +4,4 @@ restaurant-recommender.Rproj
 NAMESPACE
 DESCRIPTION
 .Rbuildignore
+raw-res
