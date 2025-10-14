@@ -1,0 +1,23 @@
+# Restaurant Recommender - Python Dependencies
+# Core web framework
+shiny>=0.8.0
+
+# Data manipulation and analysis
+pandas>=1.5.0
+numpy>=1.21.0
+
+# Machine learning and NLP
+scikit-learn>=1.1.0
+transformers>=4.20.0
+sentence-transformers>=2.2.0
+torch>=1.12.0
+
+# Visualization
+plotly>=5.10.0
+
+# Database connectivity
+sqlite3  # Built-in Python module
+
+# Utilities
+os  # Built-in Python module
+warnings  # Built-in Python module
