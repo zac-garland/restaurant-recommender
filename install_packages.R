@@ -4,41 +4,26 @@
 # Set CRAN mirror
 options(repos = c(CRAN = "https://cran.rstudio.com/"))
 
-# List of required packages
+# List of required packages (essential only)
 required_packages <- c(
   # Core Shiny framework
   "shiny",
-  "shinydashboard",
   "shinyjs",
-  "shinyWidgets",
+  "shinycssloaders",
   
   # Data manipulation and analysis
-  "dplyr",
-  "tidyr",
-  "stringr",
+  "tidyverse",
   "DBI",
   "RSQLite",
   
   # Machine learning and NLP
   "textrecipes",
-  "parsnip",
-  "workflows",
-  "tune",
-  "yardstick",
   "topicmodels",
   "tm",
-  "text",
-  "purrr",
   
   # Visualization
-  "ggplot2",
-  "plotly",
   "leaflet",
-  "DT",
-  "scales",
-  "corrplot",
-  "wordcloud2",
-  "htmltools"
+  "plotly"
 )
 
 # Function to install packages if not already installed

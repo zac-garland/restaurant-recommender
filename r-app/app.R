@@ -4,34 +4,17 @@
 
 # Load required libraries
 library(shiny)
-library(shinydashboard)
-library(DT)
-library(plotly)
+
 library(leaflet)
-library(dplyr)
-library(tidyr)
-library(stringr)
+library(plotly)
 library(DBI)
 library(RSQLite)
 library(textrecipes)
-# Load specific tidymodels packages to avoid infer conflicts
-library(purrr)
-library(parsnip)
-library(workflows)
-library(tune)
-library(yardstick)
 library(topicmodels)
 library(tm)
-library(text)
 library(shinyjs)
-library(ggplot2)
-library(scales)
-library(corrplot)
-library(wordcloud2)
-library(htmltools)
 library(shinycssloaders)
-library(shinyWidgets)
-
+library(tidyverse)
 # ============================================================================
 # DATA LOADING & PREPROCESSING
 # ============================================================================
@@ -349,7 +332,7 @@ extract_topics <- function(reviews, n_topics = 5) {
 ui <- fluidPage(
   # Initialize shinyjs
   useShinyjs(),
-  
+
   # Custom CSS
   tags$head(
     tags$style(HTML("
@@ -464,7 +447,7 @@ ui <- fluidPage(
           padding: 15px;
         }
       }
-      
+
       /* Clickable restaurant card styles */
       .clickable-restaurant {
         transition: all 0.2s ease;
@@ -697,12 +680,12 @@ server <- function(input, output, session) {
           var restaurantId = $(this).data('restaurant-id');
           var lat = $(this).data('lat');
           var lng = $(this).data('lng');
-          
+
           // Send the clicked restaurant data to Shiny
           Shiny.setInputValue('clicked_restaurant_id', restaurantId);
           Shiny.setInputValue('clicked_restaurant_lat', lat);
           Shiny.setInputValue('clicked_restaurant_lng', lng);
-          
+
           // Add visual feedback
           $(this).css('background-color', '#e2e8f0');
           setTimeout(function() {
@@ -768,19 +751,19 @@ server <- function(input, output, session) {
   # Map visualization with rich popups
   output$map_plot <- renderLeaflet({
     df <- filtered_restaurants()
-    
+
     # Handle empty data
     if (nrow(df) == 0) {
       return(leaflet() %>%
         addTiles() %>%
         setView(lng = -97.7431, lat = 30.2672, zoom = 11))
     }
-    
+
     # Create rich popup content
     popup_content <- lapply(1:nrow(df), function(i) {
       tryCatch({
         row <- df[i, ]
-        
+
         # Get sample reviews for this restaurant
         restaurant_reviews <- reviews_df() %>%
           filter(restaurant_id == row$id) %>%
@@ -968,16 +951,16 @@ server <- function(input, output, session) {
   observeEvent(clicked_restaurant(), {
     if (!is.null(clicked_restaurant())) {
       clicked_data <- clicked_restaurant()
-      
+
       # Find the restaurant data
       df <- filtered_restaurants()
       restaurant_row <- df[df$id == clicked_data$id, ]
-      
+
       if (nrow(restaurant_row) > 0) {
         # Generate popup content for the clicked restaurant
         popup_content <- tryCatch({
           row <- restaurant_row[1, ]
-          
+
           # Get sample reviews for this restaurant
           restaurant_reviews <- reviews_df() %>%
             filter(restaurant_id == row$id) %>%
@@ -1025,7 +1008,7 @@ server <- function(input, output, session) {
               review_stars <- paste(rep("⭐", floor(review$rating)), collapse = "")
               review_text <- substr(review$text, 1, 100)
               if (nchar(review$text) > 100) review_text <- paste0(review_text, "...")
-              
+
               paste0("<div style='margin: 6px 0; padding: 6px; background: #f7fafc; border-radius: 4px;'>",
                      "<div style='color: #f59e0b; font-size: 0.9em;'>", review_stars, " ", review$rating, "</div>",
                      "<div style='font-size: 0.85em; color: #4a5568;'>", review_text, "</div>",
@@ -1040,7 +1023,7 @@ server <- function(input, output, session) {
           # Action buttons
           links_html <- "<div style='margin: 8px 0;'>"
           if (length(row$website) == 1 && !is.na(row$website) && row$website != "") {
-            links_html <- paste0(links_html, 
+            links_html <- paste0(links_html,
               "<a href='", row$website, "' target='_blank' style='display: inline-block; margin: 2px; padding: 6px 12px; background: #667eea; color: white; text-decoration: none; border-radius: 4px; font-size: 0.85em;'>🌐 Website</a>")
           }
           if (length(row$formatted_phone_number) == 1 && !is.na(row$formatted_phone_number) && row$formatted_phone_number != "") {

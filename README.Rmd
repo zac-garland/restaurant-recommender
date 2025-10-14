@@ -56,9 +56,8 @@ python -m shiny run app.py --port 8000 --host 127.0.0.1
 
 ### R Version
 - **Framework**: R Shiny
-- **NLP**: `textrecipes`, `topicmodels`, `text` package
-- **ML**: `tidymodels` ecosystem
-- **Visualization**: `leaflet`, `plotly`, `ggplot2`
+- **NLP**: `textrecipes`, `topicmodels`, `tm`
+- **Visualization**: `leaflet`, `plotly`
 - **Data**: `tidyverse`, `DBI`, `RSQLite`
 
 ### Python Version
