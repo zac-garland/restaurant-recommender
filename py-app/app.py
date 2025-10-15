@@ -71,14 +71,20 @@ def load_data():
         
         # Load reviews
         reviews_query = """
-        SELECT 
-            id as restaurant_id,
-            author_name as author,
-            rating,
-            text,
-            time
-        FROM reviews
-        WHERE text IS NOT NULL AND text != ''
+        WITH review_data AS (
+            SELECT
+                id as restaurant_id,
+                author_name as author,
+                rating,
+                text,
+                time,
+                COUNT(text) OVER (PARTITION BY id) as review_count
+            FROM reviews
+            WHERE text IS NOT NULL AND text != ''
+        )
+        SELECT restaurant_id, author, rating, text, time
+        FROM review_data
+        WHERE review_count > 5
         """
         reviews = pd.read_sql_query(reviews_query, conn)
         

@@ -11,6 +11,7 @@ data
 /ignore
 .DS_Store
 py-app/datascience_env/
+.env
 
 # python gitignore
 # Byte-compiled / optimized / DLL files
