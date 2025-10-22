@@ -68,12 +68,27 @@ def search_restaurants(request: SearchRequest):
         if request.radius < 100:
             filtered = filtered[filtered['distance'].fillna(999) <= request.radius]
     
-    # BERT similarity on restaurant names and tags
+    # BERT similarity on restaurant names, tags, AND reviews (crowdsourced!)
     if not filtered.empty:
-        # Combine name and place_tags for better semantic matching
-        search_text = filtered['name'] + ' ' + filtered['place_tags'].fillna('')
+        # Combine name, place_tags, AND aggregated reviews for semantic matching
+        search_texts = []
+        for idx, row in filtered.iterrows():
+            # Get reviews for this restaurant
+            restaurant_reviews = reviews_df[reviews_df['id'] == row['id']]
+            
+            # Combine up to 5 reviews into one text block for richer context
+            review_text = ''
+            if not restaurant_reviews.empty:
+                top_reviews = restaurant_reviews.head(5)['text'].fillna('').tolist()
+                review_text = ' '.join(top_reviews)[:1000]  # Limit to 1000 chars to avoid too long
+            
+            # Combine: name + tags + crowdsourced review content
+            combined = f"{row['name']} {row['place_tags']} {review_text}"
+            search_texts.append(combined)
+        
+        # Encode query and all restaurant texts
         query_emb = model.encode([query])
-        rest_emb = model.encode(search_text.tolist())
+        rest_emb = model.encode(search_texts)
         sim = cosine_similarity(query_emb, rest_emb)[0]
         filtered['similarity'] = sim
         
