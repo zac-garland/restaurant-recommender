@@ -283,3 +283,5 @@ po/*~
 
 # RStudio Connect folder
 rsconnect/
+
+.posit/

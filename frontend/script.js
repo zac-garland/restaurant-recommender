@@ -14,12 +14,12 @@ document.addEventListener('DOMContentLoaded', function() {
 function setupLandingPage() {
     const landingLocationBtn = document.getElementById('landing-location-btn');
     const landingSearchInput = document.getElementById('landing-search-input');
-    
+
     // Handle location button on landing page
     landingLocationBtn.addEventListener('click', function() {
         getLandingLocation();
     });
-    
+
     // Handle Enter key on landing search
     landingSearchInput.addEventListener('keypress', function(e) {
         if (e.key === 'Enter') {
@@ -33,21 +33,21 @@ function setupLandingPage() {
 
 function getLandingLocation() {
     const btn = document.getElementById('landing-location-btn');
-    
+
     if (navigator.geolocation) {
         btn.textContent = '⏳ Getting location...';
-        
+
         navigator.geolocation.getCurrentPosition(
             function(position) {
                 userLocation = {
                     lat: position.coords.latitude,
                     lng: position.coords.longitude
                 };
-                
+
                 locationGranted = true;
                 btn.textContent = '✓ Location Granted!';
                 btn.classList.add('granted');
-                
+
                 setTimeout(() => {
                     document.getElementById('landing-search-input').focus();
                 }, 500);
@@ -67,21 +67,21 @@ function transitionToMainApp(initialQuery = '') {
     // Slide out landing page
     const landingPage = document.getElementById('landing-page');
     const mainApp = document.getElementById('main-app');
-    
+
     landingPage.classList.add('slide-out');
-    
+
     // Wait for slide animation, then show main app
     setTimeout(() => {
         landingPage.style.display = 'none';
         mainApp.classList.add('slide-in');
-        
+
         // Initialize map only once we transition
         if (!mapInitialized) {
             initializeMap();
             setupEventListeners();
             mapInitialized = true;
         }
-        
+
         // If we have a query, perform the search
         if (initialQuery) {
             document.getElementById('search-input').value = initialQuery;
@@ -89,7 +89,7 @@ function transitionToMainApp(initialQuery = '') {
                 performSearch();
             }, 500);
         }
-        
+
         // If location was granted, show it on the map
         if (locationGranted && userLocation) {
             addUserLocationMarker();
@@ -124,12 +124,12 @@ function setupEventListeners() {
 
 function addUserLocationMarker() {
     if (!userLocation) return;
-    
+
     // Remove old user marker if exists
     if (userMarker) {
         map.removeLayer(userMarker);
     }
-    
+
     // Add blue marker for user location
     const blueIcon = L.icon({
         iconUrl: 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjQiIGhlaWdodD0iMjQiIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPGNpcmNsZSBjeD0iMTIiIGN5PSIxMiIgcj0iOCIgZmlsbD0iIzIzNjNlYiIgc3Ryb2tlPSJ3aGl0ZSIgc3Ryb2tlLXdpZHRoPSIzIi8+Cjwvc3ZnPg==',
@@ -137,12 +137,12 @@ function addUserLocationMarker() {
         iconAnchor: [12, 12],
         popupAnchor: [0, -12]
     });
-    
+
     userMarker = L.marker([userLocation.lat, userLocation.lng], {icon: blueIcon})
         .addTo(map)
         .bindPopup('<b>Your Location</b>')
         .openPopup();
-        
+
     map.setView([userLocation.lat, userLocation.lng], 13);
 }
 
@@ -154,7 +154,7 @@ async function performSearch() {
     const maxPrice = parseInt(document.getElementById('price-select').value);
 
     try {
-        const response = await fetch('http://localhost:8001/search', {
+        const response = await fetch('/api/search', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -200,7 +200,7 @@ function displayResults(restaurants) {
         // Add marker - use lat/lng or latitude/longitude
         const lat = restaurant.latitude || restaurant.lat;
         const lng = restaurant.longitude || restaurant.lng;
-        
+
         if (lat && lng) {
             // Create popup content with reviews/topics/tags
             const popupContent = `
@@ -215,7 +215,7 @@ function displayResults(restaurants) {
                     <p style="margin-top: 10px; font-size: 0.9em;">${restaurant.address || ''}</p>
                 </div>
             `;
-            
+
             const marker = L.marker([lat, lng])
                 .addTo(map)
                 .bindPopup(popupContent);
@@ -234,14 +234,14 @@ function displayResults(restaurants) {
             <p><strong>Similarity:</strong> ${restaurant.similarity ? (restaurant.similarity * 100).toFixed(1) + '%' : 'N/A'}</p>
             ${restaurant.place_tags ? `<p><strong>Categories:</strong> ${restaurant.place_tags.split(',').slice(0, 5).join(', ')}</p>` : ''}
         `;
-        
+
         // Click card to show marker popup
         card.addEventListener('click', () => {
             marker.openPopup();
             map.setView([lat, lng], 15);
             switchTab('map');
         });
-        
+
         listContainer.appendChild(card);
     });
 
@@ -260,10 +260,10 @@ function getUserLocation() {
                     lat: position.coords.latitude,
                     lng: position.coords.longitude
                 };
-                
+
                 locationGranted = true;
                 addUserLocationMarker();
-                
+
                 alert('Location obtained! Your searches will now consider proximity.');
             },
             function(error) {
