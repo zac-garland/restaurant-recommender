@@ -1,8 +1,33 @@
 // Restaurant Recommender Frontend Script
 
+// Curated food prompts for "I'm Feeling Lucky" feature
+const luckyPrompts = [
+    "Hidden gem Italian restaurant",
+    "Best tacos in Austin",
+    "Vegan Buddha bowls",
+    "Fresh sushi rolls",
+    "Authentic Thai curry",
+    "Farm-to-table seasonal menu",
+    "Best burger with fries",
+    "Cozy brunch spot with avocado toast",
+    "Vietnamese pho near me",
+    "Mexican street food",
+    "Trendy ramen noodles",
+    "Authentic Indian biryani",
+    "BBQ brisket",
+    "Craft pizza with fresh ingredients",
+    "Mediterranean mezze platter",
+    "Korean bibimbap",
+    "Portuguese chicken piri piri",
+    "Healthy acai bowls",
+    "Spanish tapas bar",
+    "Japanese teppanyaki"
+];
+
 let map;
 let markers = [];
-let userLocation = null;
+// Default to UT Austin Tower coordinates (30.2849° N, 97.7362° W)
+let userLocation = { lat: 30.2849, lng: -97.7362 };
 let userMarker = null;
 let locationGranted = false;
 let mapInitialized = false;
@@ -14,6 +39,7 @@ document.addEventListener('DOMContentLoaded', function() {
 function setupLandingPage() {
     const landingLocationBtn = document.getElementById('landing-location-btn');
     const landingSearchInput = document.getElementById('landing-search-input');
+    const luckyBtn = document.getElementById('lucky-btn');
 
     // Handle location button on landing page
     landingLocationBtn.addEventListener('click', function() {
@@ -28,6 +54,12 @@ function setupLandingPage() {
                 transitionToMainApp(query);
             }
         }
+    });
+
+    // Handle "I'm Feeling Lucky" button
+    luckyBtn.addEventListener('click', function() {
+        const randomPrompt = luckyPrompts[Math.floor(Math.random() * luckyPrompts.length)];
+        transitionToMainApp(randomPrompt);
     });
 }
 
@@ -114,6 +146,15 @@ function setupEventListeners() {
         }
     });
 
+    // Example query buttons - natural language prompts
+    document.querySelectorAll('.example-btn').forEach(btn => {
+        btn.addEventListener('click', function() {
+            const query = this.getAttribute('data-query');
+            document.getElementById('search-input').value = query;
+            performSearch();
+        });
+    });
+
     // Tab switching
     document.querySelectorAll('.tab-btn').forEach(btn => {
         btn.addEventListener('click', function() {
@@ -153,8 +194,14 @@ async function performSearch() {
     const radius = parseFloat(document.getElementById('radius-select').value);
     const maxPrice = parseInt(document.getElementById('price-select').value);
 
+    // Visual feedback - show loading state
+    const searchBtn = document.getElementById('search-btn');
+    const originalText = searchBtn.textContent;
+    searchBtn.textContent = '⏳ Searching...';
+    searchBtn.disabled = true;
+
     try {
-        const response = await fetch('/api/search', {
+        const response = await fetch('http://127.0.0.1:8001/api/search', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -173,15 +220,28 @@ async function performSearch() {
         }
 
         const results = await response.json();
+        console.log('Search results received:', results);
+        if (!mapInitialized) {
+            console.warn('Map not initialized, initializing now...');
+            initializeMap();
+            mapInitialized = true;
+        }
         displayResults(results);
         switchTab('map'); // Auto-navigate to map
     } catch (error) {
         console.error('Search error:', error);
-        alert('Search failed. Please try again.');
+        alert('Search failed. Please try again. Check browser console for details.');
+    } finally {
+        // Restore button state
+        searchBtn.textContent = originalText;
+        searchBtn.disabled = false;
     }
 }
 
 function displayResults(restaurants) {
+    console.log('displayResults called with', restaurants.length, 'restaurants');
+    console.log('Map object:', map);
+    
     // Clear previous markers
     markers.forEach(marker => map.removeLayer(marker));
     markers = [];
@@ -202,15 +262,23 @@ function displayResults(restaurants) {
         const lng = restaurant.longitude || restaurant.lng;
 
         if (lat && lng) {
-            // Create popup content with reviews/topics/tags
+            // Create popup content - clean, minimal design
+            // Check for delivery/takeout options in place_tags
+            const tags = restaurant.place_tags ? restaurant.place_tags.split(',').map(t => t.trim()) : [];
+            const hasDelivery = tags.includes('meal_delivery');
+            const hasTakeout = tags.includes('meal_takeaway');
+            
+            const deliveryIcon = hasDelivery ? '🚚 Delivery' : '';
+            const takeoutIcon = hasTakeout ? '📦 Takeout' : '';
+            const serviceOptions = [deliveryIcon, takeoutIcon].filter(Boolean).join(' • ');
+            
             const popupContent = `
                 <div style="max-width: 300px;">
                     <h3 style="margin: 0 0 10px 0;">${restaurant.name}</h3>
-                    <p><strong>Rating:</strong> ${restaurant.rating || 'N/A'} ⭐ (${restaurant.user_ratings_total || 0} reviews)</p>
                     <p><strong>Price:</strong> ${'$'.repeat(restaurant.price_level || 1)}</p>
                     <p><strong>Distance:</strong> ${restaurant.distance ? restaurant.distance.toFixed(2) + ' miles' : 'N/A'}</p>
                     <p><strong>Match Score:</strong> ${restaurant.similarity ? (restaurant.similarity * 100).toFixed(1) + '%' : 'N/A'}</p>
-                    ${restaurant.place_tags ? `<p><strong>Tags:</strong> ${restaurant.place_tags.split(',').slice(0, 5).join(', ')}</p>` : ''}
+                    ${serviceOptions ? `<p style="background: #f0f4ff; padding: 8px 12px; border-radius: 6px; margin: 10px 0; font-size: 0.95em;"><strong>Services:</strong> ${serviceOptions}</p>` : ''}
                     ${restaurant.top_review ? `<p style="font-style: italic; margin-top: 10px;">"${restaurant.top_review}"</p>` : ''}
                     <p style="margin-top: 10px; font-size: 0.9em;">${restaurant.address || ''}</p>
                 </div>
@@ -225,18 +293,27 @@ function displayResults(restaurants) {
         // Add to list
         const card = document.createElement('div');
         card.className = 'restaurant-card';
+        
+        // Create website button if URL exists
+        const websiteBtn = restaurant.website ? 
+            `<a href="${restaurant.website}" target="_blank" class="website-btn" title="Visit website">🌐 Visit Website</a>` : 
+            '';
+        
         card.innerHTML = `
-            <h3>${restaurant.name}</h3>
+            <div class="card-header">
+                <h3>${restaurant.name}</h3>
+                ${websiteBtn}
+            </div>
             <p><strong>Price Level:</strong> ${'$'.repeat(restaurant.price_level || 1)}</p>
-            <p><strong>Rating:</strong> ${restaurant.rating || 'N/A'} ⭐ (${restaurant.user_ratings_total || 0} reviews)</p>
             <p><strong>Distance:</strong> ${restaurant.distance ? restaurant.distance.toFixed(2) + ' miles' : 'N/A'}</p>
             <p><strong>Address:</strong> ${restaurant.address || 'N/A'}</p>
-            <p><strong>Similarity:</strong> ${restaurant.similarity ? (restaurant.similarity * 100).toFixed(1) + '%' : 'N/A'}</p>
-            ${restaurant.place_tags ? `<p><strong>Categories:</strong> ${restaurant.place_tags.split(',').slice(0, 5).join(', ')}</p>` : ''}
+            <p><strong>Similarity Match:</strong> ${restaurant.similarity ? (restaurant.similarity * 100).toFixed(1) + '%' : 'N/A'}</p>
         `;
 
         // Click card to show marker popup
-        card.addEventListener('click', () => {
+        card.addEventListener('click', (e) => {
+            // Don't trigger map view if clicking the website button
+            if (e.target.closest('.website-btn')) return;
             marker.openPopup();
             map.setView([lat, lng], 15);
             switchTab('map');

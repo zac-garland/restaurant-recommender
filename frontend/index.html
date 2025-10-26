@@ -21,6 +21,7 @@
             
             <div class="landing-search">
                 <input type="text" id="landing-search-input" placeholder="What are you craving? (e.g., 'Italian vegan pizza')">
+                <button id="lucky-btn" class="lucky-cta">🎲 I'm Feeling Lucky</button>
             </div>
         </div>
     </div>
@@ -34,9 +35,19 @@
 
         <div class="search-section">
             <div class="search-box">
-                <input type="text" id="search-input" placeholder="Describe what you're craving... e.g., 'Italian vegan pizza under $20'">
-                <button id="search-btn">Search</button>
+                <input type="text" id="search-input" placeholder="Describe what you're craving... e.g., 'I want a cozy spot with fresh pasta and good wine'">
+                <button id="search-btn">🔍 Search</button>
                 <button id="location-btn">📍 Use My Location</button>
+            </div>
+
+            <div class="example-queries">
+                <p class="example-label">Try natural language:</p>
+                <div class="example-buttons">
+                    <button class="example-btn" data-query="Quiet place with healthy options near me">🥗 Quiet & Healthy</button>
+                    <button class="example-btn" data-query="Fun atmosphere, great cocktails, late night">🍹 Fun Night Out</button>
+                    <button class="example-btn" data-query="Family-friendly with kids menu and outdoor seating">👨‍👩‍👧‍👦 Family Friendly</button>
+                    <button class="example-btn" data-query="Authentic street food, spicy, budget-friendly">🌶️ Street Food</button>
+                </div>
             </div>
             
             <div class="filters">
