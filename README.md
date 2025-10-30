@@ -60,7 +60,7 @@ The system understands the **context** and **intent** behind your query using BE
 - language: Review language
 ```
 
-**Sample Data**: ~1,500 Austin restaurants with 10,000+ reviews
+**Sample Data**: ~2,500 Austin restaurants with 190,000+ reviews
 
 ## 🚀 Getting Started
 
