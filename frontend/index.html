@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Restaurant Recommender</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+</head>
+<body>
+    <!-- Landing Page -->
+    <div class="landing-page" id="landing-page">
+        <div class="landing-content">
+            <h1 class="landing-title">🍽️ Restaurant Recommender</h1>
+            <p class="landing-subtitle">Find your perfect dining experience in Austin</p>
+            
+            <div class="landing-location">
+                <button id="landing-location-btn" class="location-cta">📍 Grant Location Access</button>
+                <p class="location-hint">We'll use your location to find nearby restaurants</p>
+            </div>
+            
+            <div class="landing-search">
+                <input type="text" id="landing-search-input" placeholder="What are you craving? (e.g., 'Italian vegan pizza')">
+                <button id="lucky-btn" class="lucky-cta">🎲 I'm Feeling Lucky</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main App (Initially Hidden) -->
+    <div class="container" id="main-app">
+        <header>
+            <h1>🍽️ Restaurant Recommender</h1>
+            <p>Find your perfect dining experience in Austin</p>
+        </header>
+
+        <div class="search-section">
+            <div class="search-box">
+                <input type="text" id="search-input" placeholder="Describe what you're craving... e.g., 'I want a cozy spot with fresh pasta and good wine'">
+                <button id="search-btn">🔍 Search</button>
+                <button id="location-btn">📍 Use My Location</button>
+            </div>
+
+            <div class="example-queries">
+                <p class="example-label">Try natural language:</p>
+                <div class="example-buttons">
+                    <button class="example-btn" data-query="Quiet place with healthy options near me">🥗 Quiet & Healthy</button>
+                    <button class="example-btn" data-query="Fun atmosphere, great cocktails, late night">🍹 Fun Night Out</button>
+                    <button class="example-btn" data-query="Family-friendly with kids menu and outdoor seating">👨‍👩‍👧‍👦 Family Friendly</button>
+                    <button class="example-btn" data-query="Authentic street food, spicy, budget-friendly">🌶️ Street Food</button>
+                </div>
+            </div>
+            
+            <div class="filters">
+                <div class="filter-group">
+                    <label for="radius-select">Radius (miles):</label>
+                    <select id="radius-select">
+                        <option value="100">All of Austin</option>
+                        <option value="5">5 miles</option>
+                        <option value="10" selected>10 miles</option>
+                        <option value="15">15 miles</option>
+                        <option value="20">20 miles</option>
+                    </select>
+                </div>
+                
+                <div class="filter-group">
+                    <label for="price-select">Max Price Level:</label>
+                    <select id="price-select">
+                        <option value="4">Any Price</option>
+                        <option value="1">$ (Inexpensive)</option>
+                        <option value="2">$$ (Moderate)</option>
+                        <option value="3">$$$ (Expensive)</option>
+                        <option value="4">$$$$ (Very Expensive)</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+
+        <div class="tabs">
+            <button class="tab-btn active" data-tab="map">Map View</button>
+            <button class="tab-btn" data-tab="list">List View</button>
+        </div>
+
+        <div id="map-tab" class="tab-content active">
+            <div id="map"></div>
+        </div>
+
+        <div id="list-tab" class="tab-content">
+            <div id="results-list"></div>
+        </div>
+    </div>
+
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script src="script.js"></script>
+</body>
+</html>
